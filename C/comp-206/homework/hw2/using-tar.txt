@@ -1,0 +1,6 @@
+1.1: Use the c flag and the f flag to specify the target file name of the archive on the tar command
+1.2: Use the t flag and the f flag to specify the name of the archive on the tar command
+1.3: Use the x flag and the f flag to specify the name of the archive on the tar command
+1.4: In the directory I am currently running the tar command on
+1.5: .tar is a tarball, an archive that combines files and folders together without compressing, while .gz means the tarball was compressed to save memory
+1.6: The tarbomb is a tar archive which dumps its content in the current directory instead of creating a new subdirectory for it when it is extracted

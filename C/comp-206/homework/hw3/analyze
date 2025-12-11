@@ -1,0 +1,50 @@
+#!/bin/bash
+
+function count() {		
+	rows_for "$1" | wc -l
+}
+
+function total() {
+	awk -F, -v c="$1" '$4==c {print ($8 + 0) }' ./worldcities.csv | sum
+}
+
+function average() {
+	local s=$(total "$1")
+	local n=$(count "$1")
+	if [[ n -eq 0 ]];then
+		echo 0
+	else
+		echo $((s / n))
+	fi
+}
+
+function rows_for() {
+	local COUNTRY="$1"
+	grep "^.*,.*,.*,${COUNTRY},.*,.*,.*,.*" ./worldcities.csv
+}
+
+function sum() {
+	local sum=0
+	while IFS= read -r line; do
+		sum=$((sum + line))
+	done;
+	echo $sum
+}
+
+if [[ $# -ne 2 ]]; then
+	echo "Invalid number of arguments. Usage -- analyze <command> <country>" >&2
+	exit 1
+fi
+	
+function="$1"
+country="$2"
+
+if [[ $function == "count" ]]; then
+	count "$country"
+elif [[ $function == "total" ]]; then
+	total "$country"
+elif [[ $function == "average" ]]; then
+	average "$country"
+else
+	echo "Invalid operation" >&2
+fi

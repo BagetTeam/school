@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "Not enough arguments. No homework requested"
+    exit 1
+fi
+
+HOMEWORK=$1
+BASE_PATH="$HOME/comp-206/homework"
+HOMEWORK_PATH="$BASE_PATH/hw$HOMEWORK"
+GIT_REP="fall2025-comp206:hw$HOMEWORK.git"
+if [ -d ~/comp-206/homework/$HOMEWORK ]; then
+    echo "Homework $HOMEWORK directory already exists. Overwrite? [y/n]"
+    read OVERWRITE
+    if [ "$OVERWRITE" == "n" || "$OVERWRITE" == "N" ]; then
+        exit 0
+    fi
+    rm -fr $HOMEWORK_PATH
+fi 
+
+git clone $GIT_REP $HOMEWORK_PATH

@@ -1,0 +1,21 @@
+1. Confidentiality, Integrity and Availability
+
+Confidentiality: Ensure information is only given to authorized people while blocking the information from those who are not given authorized access.
+
+Integrity: Makes sure that the data is accurate and complete, and can't be modified by without authorization.
+
+Availability: Ensure the information is accessible and usable by those with authorization whenever it is needed.
+
+a) This attacks availability since the attacks blocks access to patients' information for the duration of the attack.
+
+b) This attacks confidentiality, as the attacker is selling the information to unauthorized users.
+
+3. The Diffie-Hellman key exchange algorithm is usually used to share a secret key between two endpoints over a insecure channel without presharing it. It is useful when wanting to encrypt messages using a private key but without having yet shared a secret key between both parties.
+
+4. RSA can prove omnership of a private key through digital signitures. Since only they have the private key, they can encrypt a message with that private key, and have anyone decrypt it with the public key, proving authentication and integrity of the message.
+
+5. Assuming a preshared key, we can attach a Message Authentication Code (MAC) using HMAC, where:
+- First, compute HMAC using a hash function like SHA-256 that utilizes the key
+- Second, append this MAC to the text file
+- Third, recompute the HMAC using the preshared key K and the received message
+- Lastly, if the computed MAC matches the other MAC, the author is verified and the message was not altered.

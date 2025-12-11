@@ -1,0 +1,19 @@
+#!/bin/bash
+
+base="$HOME/comp-206"
+
+if [ ! -d "$base/homework" ]; then
+	echo "Homework directory doesn't exist"
+	exit 1
+fi
+
+mkdir -p "$base/backups"
+
+timestamp=$(date +"%Y-%m-%dT%H:%M:%S")
+
+TAR_NAME="homework-$timestamp.tar.gz"
+
+tar -cvzf "$base/backups/$TAR_NAME" "$base/homework"
+
+echo "Created backup: backups/$TAR_NAME"
+

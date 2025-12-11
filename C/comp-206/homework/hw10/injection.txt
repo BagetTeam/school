@@ -1,0 +1,5 @@
+1. The calculator works through a bash script using $((..)). I found this by noticing runtime errors from say dividing by 0, noticing a similar message from using bash. I then tried using putting a bash command such as $(ls), and it printed out some files (login.cgi, ls.txt), confirming this is a bash script.
+
+2. Running a command such as ls in such a form $(cmd).
+
+3. 3leet5me

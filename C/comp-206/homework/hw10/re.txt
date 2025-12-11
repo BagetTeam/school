@@ -1,0 +1,24 @@
+1. The read_stdin_line function is unsafe. It takes in a buffer of specific size, but converts it into a char* and reads undefinitely from stdin. This can cause a buffer overflow if stdin has more characters that the size of the buffer.
+
+2. 
+0x0000000000001215 <+12>:    mov    DWORD PTR [rbp
+-0x4],0x0 (Set admin = 0)
+0x000000000000121c <+19>:    mov    DWORD PTR [rbp
+-0x8],0x0 (Set login_successful = 0)
+
+3. Buf is not initializes since it has no initializing code associated to it. Plus, it is directly set by the read_stdin_line function so the compiler deemed it unecessary.
+
+4. It is passed [rbp-0x30], from 0x0000000000001223 <+26>:    lea    rax,[rbp-0x30]
+
+5. From higher address to lower address:
+- [rbp]  <- old rbp
+- [rbp-0x4] : admin (4 bytes)
+- [rbp-0x8] : login_succesful (4 bytes)
+- [rbp-0x9] .. [rbp-0x30] : buf (40 bytes)
+- (unused)
+
+6. I inputed "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" to reach the FLAG: REDACTED since according to the diagram, we see that buf is of 40 bytes and admin is set 4 bytes before buf. Therefore, I simply overflowed the buffer by inputting over 44 characters, and overriding 'admin' with my character. 
+
+7. Flag: YOUARE_A_TETRISCHAMPION
+
+8. A small change would be to check whether login_successful is equal to 1 instead of doing !login_successful 
