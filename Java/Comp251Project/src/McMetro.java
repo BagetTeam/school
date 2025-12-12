@@ -1,17 +1,19 @@
 import java.util.*;
 import java.lang.Math.*;
+import java.lang.reflect.Array;
 import java.sql.Connection;
 
 public class McMetro {
     protected Track[] tracks;
     protected HashMap<BuildingID, Building> buildingTable = new HashMap<>();
 
-    private List<String> passengers = new ArrayList<>();
+    private ArrayList<String> passengers = new ArrayList<>();
     
-    private List<Edge> edges = new ArrayList<>();
+    private ArrayList<Edge> edges = new ArrayList<>();
     private Trie trie = new Trie();
+    private HashMap<BuildingID, ArrayList<Edge>> graph = new HashMap<>();
 
-    private static class TrieNode {
+    private class TrieNode {
         TrieNode[] children;
         boolean isEnd;
         char letter;
@@ -28,7 +30,7 @@ public class McMetro {
         }
     }
 
-    private static class Trie {
+    private class Trie {
         TrieNode root;
 
         Trie() {
@@ -63,10 +65,11 @@ public class McMetro {
         }
     }
 
-    private static class Edge implements Comparable<Edge> {
+    private class Edge implements Comparable<Edge> {
         BuildingID start;
         BuildingID end;
         int capacity;
+        int flow;
         int cost;
         TrackID id;
         int goodness;
@@ -75,6 +78,7 @@ public class McMetro {
             this.start = start;
             this.end = end;
             this.capacity = capacity;
+            this.flow = 0;
             this.cost = cost;
             this.id = id;
             this.goodness = Math.floorDiv(capacity, cost);
@@ -100,6 +104,7 @@ public class McMetro {
             for (Building building : buildings) {
                 if (building != null) { 
                     buildingTable.putIfAbsent(building.id(), building);
+                    graph.putIfAbsent(building.id(), new ArrayList<>());
                 }
             }
         }
@@ -119,8 +124,11 @@ public class McMetro {
                 }
 
                 int maxCapacity = Math.min(track.capacity(), Math.min(sBuilding.occupants(), eBuilding.occupants()));
-                edges.add(new Edge(s, e, maxCapacity, track.cost(), track.id()));
-                
+                Edge edge = new Edge(s, e, maxCapacity, track.cost(), track.id());
+                edges.add(edge);
+
+                graph.get(s).add(edge);
+                graph.get(e).add(edge);
             }
         }
 
@@ -138,12 +146,61 @@ public class McMetro {
             return 0;
         }
 
-        
+        int totalFlow = 0;
 
+        HashMap<BuildingID, BuildingID> parentNodes = new HashMap<>();
+        HashMap<BuildingID, Edge> parentEdges = new HashMap<>();
 
-        int max = 0;
-        
-        return 0;
+        while (passengerBfs(start, end, parentNodes, parentEdges)) {    
+            int pathFlow = Integer.MAX_VALUE;
+            BuildingID cur = end;
+            while (!cur.equals(start)) {
+                BuildingID parentNode = parentNodes.get(cur);
+                Edge edge = parentEdges.get(cur);
+                pathFlow = Math.min(pathFlow, edge.capacity - edge.flow);
+                cur = parentNode;
+            }
+
+            cur = end;
+            while (!cur.equals(start)) {
+                Edge edge = parentEdges.get(cur);
+                edge.flow += pathFlow;
+
+                cur = parentNodes.get(cur);
+            }
+
+            totalFlow += pathFlow;
+
+        }
+                
+        return totalFlow;
+    }
+
+    private boolean passengerBfs(BuildingID start, BuildingID target, HashMap<BuildingID, BuildingID> parentNode, HashMap<BuildingID, Edge> parentEdge) {
+        parentNode.clear();
+        parentEdge.clear();
+        HashSet<BuildingID> visited = new HashSet<>();
+        Queue<BuildingID> queue = new LinkedList<>();
+
+        queue.add(start);
+        visited.add(start);
+
+        while (!queue.isEmpty()) {
+            BuildingID current = queue.poll();
+            if (current.equals(target)) {
+                return true;
+            }
+            for (Edge edge : graph.get(current)) {
+                BuildingID next = edge.end;
+                if (!visited.contains(next) && edge.capacity - edge.flow > 0) {
+                    visited.add(next);
+                    queue.add(next);
+                    parentNode.put(next, current);
+                    parentEdge.put(next, edge);
+                }
+            }
+        }
+        return false;
     }
 
     // Returns a list of trackIDs that connect to every building maximizing total network capacity taking cost into account
@@ -214,7 +271,7 @@ public class McMetro {
         if (schedule == null || schedule.length == 0) return 0;
 
         Arrays.sort(schedule, (a, b) -> Integer.compare(a[1], b[1]));
-        int lastTime = -10000;
+        int lastTime = Integer.MIN_VALUE;
         int hired = 0;
         for (int[] time : schedule) {
             if (time[0] >= lastTime) {
