@@ -14,11 +14,17 @@ public class McMetro {
     private static class TrieNode {
         TrieNode[] children;
         boolean isEnd;
-        String word;
+        char letter;
 
         TrieNode() {
             children = new TrieNode[26];
             isEnd = false;
+        }
+
+        TrieNode(char letter) {
+            children = new TrieNode[26];
+            isEnd = false;
+            this.letter = letter;
         }
     }
 
@@ -36,8 +42,7 @@ public class McMetro {
                 char c = word.charAt(i);
                 int index = c - 'a';
                 if (current.children[index] == null) {
-                    current.children[index] = new TrieNode();
-                    current.children[index].word = word.substring(0, i + 1);
+                    current.children[index] = new TrieNode(c);
                 }
                 current = current.children[index];
             }
@@ -55,17 +60,6 @@ public class McMetro {
                 current = current.children[index];
             }
             return current;
-        }
-
-        ArrayList<String> getWords(TrieNode node) {
-            ArrayList<String> words = new ArrayList<>();
-            if (node.isEnd) {
-                words.add(node.word);
-            }
-            for (TrieNode child : node.children) {
-                words.addAll(getWords(child));
-            }
-            return words;
         }
     }
 
@@ -99,23 +93,35 @@ public class McMetro {
 
     // You may initialize anything you need in the constructor
     McMetro(Track[] tracks, Building[] buildings) {
-       this.tracks = tracks;
+       this.tracks = tracks != null ? tracks : new Track[0];
 
        // Populate buildings table
-       for (Building building : buildings) {
-           buildingTable.putIfAbsent(building.id(), building);
-       }
+        if (buildings != null) {
+            for (Building building : buildings) {
+                if (building != null) { 
+                    buildingTable.putIfAbsent(building.id(), building);
+                }
+            }
+        }
 
-        for (Track track : tracks) {
-            BuildingID s = track.startBuildingId();
-            BuildingID e = track.endBuildingId();
-            
-            Building sBuilding = buildingTable.get(s);
-            Building eBuilding = buildingTable.get(e);
+        if (tracks != null) {
+            for (Track track : tracks) {
+                if (track == null) continue;
 
-            int maxCapacity = Math.min(track.capacity(), Math.min(sBuilding.occupants(), eBuilding.occupants()));
-            edges.add(new Edge(s, e, maxCapacity, track.cost(), track.id()));
+                BuildingID s = track.startBuildingId();
+                BuildingID e = track.endBuildingId();
 
+                Building sBuilding = buildingTable.get(s);
+                Building eBuilding = buildingTable.get(e);
+                
+                if (sBuilding == null || eBuilding == null) {
+                    continue; 
+                }
+
+                int maxCapacity = Math.min(track.capacity(), Math.min(sBuilding.occupants(), eBuilding.occupants()));
+                edges.add(new Edge(s, e, maxCapacity, track.cost(), track.id()));
+                
+            }
         }
 
         Collections.sort(edges);
@@ -180,7 +186,6 @@ public class McMetro {
 
     // Returns all passengers in the system whose names start with firstLetters
     ArrayList<String> searchForPassengers(String firstLetters) {
-        // TODO: your implementation here
         firstLetters = firstLetters.toLowerCase();
 
         ArrayList<String> passengers = new ArrayList<>();
@@ -189,29 +194,36 @@ public class McMetro {
             return passengers;
         }
 
-        Queue<TrieNode> queue = new LinkedList<>();
-        queue.add(prefix);
-        while (!queue.isEmpty()) {
-            TrieNode node = queue.poll();
-            if (node.isEnd) {
-                passengers.add(capitalize(node.word));
-            } else {
-                for (TrieNode child : node.children) {
-                    if (child != null) {
-                        queue.add(child);
-                    }
-                }
+        searchDfs(prefix, firstLetters, passengers);
+        return passengers;
+    }
+
+    private void searchDfs(TrieNode node, String word, List<String> passengers) {
+        if (node.isEnd) {
+            passengers.add(capitalize(word));
+        }
+        for (TrieNode child : node.children) {
+            if (child != null) {
+                searchDfs(child, word + child.letter, passengers);
             }
         }
-        return passengers;
     }
 
     // Return how many ticket checkers will be hired
     static int hireTicketCheckers(int[][] schedule) {
-        // TODO: your implementation here
+        if (schedule == null || schedule.length == 0) return 0;
+
         Arrays.sort(schedule, (a, b) -> Integer.compare(a[1], b[1]));
+        int lastTime = -10000;
+        int hired = 0;
+        for (int[] time : schedule) {
+            if (time[0] >= lastTime) {
+                hired++;
+                lastTime = time[1];
+            }
+        }
+        return hired;
         
-        return 0;
     }
 
     private String capitalize(String s) {

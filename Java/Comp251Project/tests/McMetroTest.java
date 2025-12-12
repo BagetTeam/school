@@ -52,6 +52,14 @@ class McMetroTest {
         assertEquals(actual, mp);
     }
 
+    @Test
+    void searchForPassengers6() {
+        String[] passengers = {"", "Charlie", "Kirky", "George", "CHRONAR"};
+        String query = "";
+        String[] expected = {"", "Charlie", "Chronar", "George", "Kirky"};
+        TestUtils.checkPassengerSearch(passengers, expected, query);
+    }
+
 
     @Test
     void bestMetroSystem() {
