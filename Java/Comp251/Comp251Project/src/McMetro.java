@@ -1,13 +1,8 @@
 import java.util.*;
-import java.lang.Math.*;
-import java.lang.reflect.Array;
-import java.sql.Connection;
 
 public class McMetro {
     protected Track[] tracks;
     protected HashMap<BuildingID, Building> buildingTable = new HashMap<>();
-
-    private ArrayList<String> passengers = new ArrayList<>();
     
     private ArrayList<Edge> edges = new ArrayList<>();
     private Trie trie = new Trie();
@@ -70,7 +65,6 @@ public class McMetro {
         BuildingID end;
         int capacity;
         int flow;
-        int cost;
         TrackID id;
         int goodness;
 
@@ -79,7 +73,6 @@ public class McMetro {
             this.end = end;
             this.capacity = capacity;
             this.flow = 0;
-            this.cost = cost;
             this.id = id;
             this.goodness = Math.floorDiv(capacity, cost);
         }
@@ -87,11 +80,6 @@ public class McMetro {
         @Override
         public int compareTo(Edge other) {
             return Integer.compare(other.goodness, this.goodness);
-            // int capacityCompare = Integer.compare(other.capacity, this.capacity);
-            // if (capacityCompare != 0) {
-            //     return capacityCompare;
-            // }
-            // return Integer.compare(this.cost, other.cost);
         }
     }
 
@@ -137,7 +125,6 @@ public class McMetro {
 
     // Maximum number of passengers that can be transported from start to end
     int maxPassengers(BuildingID start, BuildingID end) {
-        // TODO: your implementation here
         if (!buildingTable.containsKey(start) || !buildingTable.containsKey(end)) {
             return 0;
         }
@@ -230,7 +217,9 @@ public class McMetro {
 
     // Adds a passenger to the system
     void addPassenger(String name) {
-        // TODO: your implementation here
+        if (name == null || name.isEmpty()) {
+            return;
+        }
         trie.add(name.toLowerCase());
     }
 
