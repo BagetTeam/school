@@ -83,11 +83,10 @@ public class McMetro {
         }
     }
 
-    // You may initialize anything you need in the constructor
+    
     McMetro(Track[] tracks, Building[] buildings) {
        this.tracks = tracks != null ? tracks : new Track[0];
 
-       // Populate buildings table
         if (buildings != null) {
             for (Building building : buildings) {
                 if (building != null) { 
@@ -123,7 +122,7 @@ public class McMetro {
         Collections.sort(edges);
     }
 
-    // Maximum number of passengers that can be transported from start to end
+    
     int maxPassengers(BuildingID start, BuildingID end) {
         if (!buildingTable.containsKey(start) || !buildingTable.containsKey(end)) {
             return 0;
@@ -190,7 +189,7 @@ public class McMetro {
         return false;
     }
 
-    // Returns a list of trackIDs that connect to every building maximizing total network capacity taking cost into account
+    
     TrackID[] bestMetroSystem() {
         List<TrackID> trackIDs = new ArrayList<>();
 
@@ -215,7 +214,7 @@ public class McMetro {
         return trackIDs.toArray(new TrackID[0]);
     }
 
-    // Adds a passenger to the system
+    
     void addPassenger(String name) {
         if (name == null || name.isEmpty()) {
             return;
@@ -223,14 +222,13 @@ public class McMetro {
         trie.add(name.toLowerCase());
     }
 
-    // Do not change this
+    
     void addPassengers(String[] names) {
         for (String s : names) {
             addPassenger(s);
         }
     }
 
-    // Returns all passengers in the system whose names start with firstLetters
     ArrayList<String> searchForPassengers(String firstLetters) {
         firstLetters = firstLetters.toLowerCase();
 
@@ -255,7 +253,7 @@ public class McMetro {
         }
     }
 
-    // Return how many ticket checkers will be hired
+
     static int hireTicketCheckers(int[][] schedule) {
         if (schedule == null || schedule.length == 0) return 0;
 
